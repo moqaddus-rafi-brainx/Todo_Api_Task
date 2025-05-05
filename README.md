@@ -1,16 +1,24 @@
-# Todo App API
+#  Todo App – CRUD API (Feature Branch)
 
-This is a practice project built with **Node.js**, **Express.js**. It demonstrates RESTful API design with full **CRUD operations** on tasks and includes **user authentication** using **JWT (JSON Web Tokens)**. Each user can create and manage only their own tasks.
+This feature branch introduces the complete backend structure for a **Todo App** using **MongoDB**, **Mongoose**, and **Node.js**. It includes models for **Users** and **Tasks**, along with full CRUD operations and schema-level validation using Mongoose hooks.
 
-## Features
+---
 
--  User creation with JWT-based authentication
--  Middleware to protect routes and ensure only the authenticated user can access/modify their tasks
--  Create, Read, Update, Delete (CRUD) operations for tasks
+##  Features Implemented
 
+- ✅ MongoDB connection using **Mongoose**
+- ✅ Created **User** model with schema validation
+- ✅ Created **Task** model with validation and pre-save hooks
+- ✅ Implemented full **CRUD operations** for tasks
+- ✅ Middleware and modular structure for scalability
 
-## Tech Stack
+---
 
-- Node.js
-- Express.js
-- MongoDB & Mongoose
+## 🛠 Tech Stack
+
+- **Node.js**
+- **Express.js**
+- **MongoDB** 
+- **Mongoose**
+- **dotenv** (for environment configuration)
+
