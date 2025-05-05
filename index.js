@@ -9,20 +9,17 @@ const app = express();
 app.use(express.json());
 app.use('/api', userRoutes);
 app.use('/api/task',taskRoutes);
+const port=process.env.PORT;
 
-//Connecting to MongoDB
+// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
+  useUnifiedTopology: true
 })
-.then(() => {
-  console.log('Connected to MongoDB Atlas');
+.then(() => console.log('✅ Connected to MongoDB via Mongoose'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
-  //Start server only after successful DB connection
-  app.listen(process.env.PORT, () => {
-    console.log(`Server is running on http://localhost:${process.env.PORT}`);
-  });
-})
-.catch(err => {
-  console.error('MongoDB connection error:', err);
+
+app.listen(port, () => {
+  console.log(`Server on http://localhost:${process.env.port}`);
 });

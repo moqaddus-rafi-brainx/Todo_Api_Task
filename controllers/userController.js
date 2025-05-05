@@ -5,9 +5,6 @@ const jwt=require('jsonwebtoken')
 //acts a a login but also creates a user.
 const createUser = async (req, res) => {
     const { name } = req.body;
-    if (!name) {
-      return res.status(400).json({ error: 'Name is required' });
-    }
     try {
         const user = await User.create({ name });
 

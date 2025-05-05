@@ -5,10 +5,10 @@ const {authenticate}=require('../middleware/authMiddleware');
 
 
 router.post('/createTask',authenticate,createTask);
-router.post('/updateTask/:id',authenticate,updateTask);
+router.patch('/updateTask/:id',authenticate,updateTask);
 router.get('/getAllTasks',authenticate,getAllTasks);
 router.get('/getOneTask/:id',authenticate,getOneTask);
-router.get('/deleteTask/:id',authenticate,deleteTask);
+router.delete('/deleteTask/:id',authenticate,deleteTask);
 
 
 module.exports=router;
