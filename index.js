@@ -1,14 +1,15 @@
 
 const http=require('http');
 const express = require('express');
-const mongoose = require('mongoose');
 require('dotenv').config(); 
 const taskRoutes=require('./routes/taskRoutes');
+
 const authRoutes=require('./routes/authRoutes');
 const startTaskReminderCron=require('./cronJobs/reminderJob');
 const connectDB=require('./config/db');
 const {Server}=require('socket.io');
 const cors=require('cors')
+
 const app = express();
 app.use(cors()); //Enable CORS for all routes
 app.use(express.json());

@@ -100,7 +100,7 @@ const getOneTask=async(req,res)=>{
         const task=await Task.findById(taskId);
         if(!task)
         {
-            return res.status(400).send("No task found");
+            return res.status(404).send("No task found");
         }
         if(task.userId.toString()!=userId) //if the task doesnt belong to the current user
         {
@@ -124,7 +124,7 @@ const updateTask=async(req,res)=>{
     const task=await Task.findById(id);
     if(!task)
     {
-        return res.status(400).send("No task found");
+        return res.status(404).send("No task found");
     }
     if(task.userId.toString()!=userId && !task.collaborators.includes(userId))
     {
@@ -146,7 +146,7 @@ const deleteTask=async(req,res)=>{
         const task=await Task.findById(taskId);
         if(!task)
         {
-            return res.status(400).send("No task found");
+            return res.status(404).send("No task found");
         }
         if(task.userId.toString()!=userId)
         {
