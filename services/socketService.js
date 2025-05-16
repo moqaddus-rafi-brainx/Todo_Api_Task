@@ -1,0 +1,13 @@
+export const sendTaskNotification = (io, connectedUsers, userId, message) => {
+    const socketId = connectedUsers.get(userId.toString());
+    console.log("userId:", userId);
+    console.log("socketId:", socketId);
+  
+    if (socketId) {
+      io.to(socketId).emit('notification', {
+        message: message,
+        timestamp: new Date(),
+      });
+    }
+  };
+  

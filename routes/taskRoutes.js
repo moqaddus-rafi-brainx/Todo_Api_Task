@@ -1,14 +1,16 @@
 const express=require('express');
 const router=express.Router();
-const {createTask,updateTask,getAllTasks,getOneTask,deleteTask}=require('../controllers/taskController');
+const {createTask,updateTask,getAllTasks,getOneTask,deleteTask,shareTask}=require('../controllers/taskController');
 const {authenticate}=require('../middleware/authMiddleware');
 
 
-router.post('/createTask',authenticate,createTask);
-router.post('/updateTask/:id',authenticate,updateTask);
-router.get('/getAllTasks',authenticate,getAllTasks);
-router.get('/getOneTask/:id',authenticate,getOneTask);
-router.get('/deleteTask/:id',authenticate,deleteTask);
+
+router.post('',authenticate,createTask);
+router.patch('/:id',authenticate,updateTask);
+router.get('',authenticate,getAllTasks);
+router.get('/:id',authenticate,getOneTask);
+router.delete('/:id',authenticate,deleteTask);
+router.post('/:id',authenticate,shareTask);
 
 
 module.exports=router;
