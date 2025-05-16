@@ -80,7 +80,6 @@ const shareTask=async(req,res)=>{
 
             await sendNotificationEmail(email,'Task Share Notification',`<p>${sharedBy.email} shared a task with you</p><p>Task Description: ${task.description}</p>`)
             
-            console.log('connected users:',connectedUsers);
             const message= `A task was shared by ${sharedBy.username} with you: "${task.description}"`;
             sendTaskNotification(io,connectedUsers,user._id,message)
             

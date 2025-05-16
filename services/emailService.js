@@ -20,7 +20,6 @@ async function sendVerificationEmail(to, verificationLink) {
       subject: 'Email Verification',
       html: `<p>Click on this link to verify your email:</p><a href="${verificationLink}">Verify Email</a>`,
     });
-    console.log('Email sent:', info.messageId);
     return info;
   } catch (err) {
     console.error('Error sending email:', err);
@@ -37,7 +36,6 @@ async function sendPasswordResetEmail(to, resetLink) {
         subject: 'Reset Password',
         html: `<p>Click on this link to reset you password:</p><a href="${resetLink}">Verify Email</a>`,    
     });
-      console.log('Email sent:', info.messageId);
       return info;
     } catch (err) {
       console.error('Error sending email:', err);
@@ -56,7 +54,6 @@ async function sendNotificationEmail(to,title,description) {
       subject: title,
       html: description,
     });
-    console.log('Email sent:', info.messageId);
     return info;
   } catch (err) {
     console.error('Error sending email:', err);

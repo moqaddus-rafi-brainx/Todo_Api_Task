@@ -3,7 +3,6 @@ const http=require('http');
 const express = require('express');
 require('dotenv').config(); 
 const taskRoutes=require('./routes/taskRoutes');
-
 const authRoutes=require('./routes/authRoutes');
 const startTaskReminderCron=require('./cronJobs/reminderJob');
 const connectDB=require('./config/db');
@@ -26,11 +25,9 @@ const io=new Server(server,{
 const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
 
   socket.on('register', (userId) => {
     connectedUsers.set(userId, socket.id);
-    console.log(`User ${userId} registered with socket ${socket.id}`);
   });
 
   socket.on('disconnect', () => {
@@ -40,7 +37,6 @@ io.on('connection', (socket) => {
         break;
       }
     }
-    console.log('User disconnected:', socket.id);
   });
 });
 

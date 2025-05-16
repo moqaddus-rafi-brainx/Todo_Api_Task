@@ -27,7 +27,6 @@ const signupUser = async(req, res) => {
     //Now sending verification email with the link to frontend(no frontend so verify api will be called)
     var verificationLink=generateVerificationLink(token);
     await sendVerificationEmail(email,verificationLink);
-    console.log(verificationLink);
     res.status(201).json({ message: 'Verification email sent', link: verificationLink });
     } catch (error) {
         return res.status(400).json({message:error.message});
@@ -58,7 +57,7 @@ const verifyUser = async(req, res) => {
         }
     }
     catch(error){
-        console.log(error);
+        console.error(error.message);
         res.status(400).send('Token invalid');
     }
 
@@ -84,7 +83,6 @@ const loginUser = async(req, res) => {
         {
             //token produced for authorization process
             const token = jwt.sign({ email: user.email,id:user._id }, JWT_SECRET);
-            console.log(user._id)
             res.json({ message: 'You have successfully logged in', token,username: user.username });
         }
         else
