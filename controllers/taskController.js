@@ -45,12 +45,10 @@ const shareTask=async(req,res)=>{
 
     const io = req.app.get('io');
     const connectedUsers = req.app.get('connectedUsers');
-
     const userId=req.userId;
     const {id}=req.params;
     const {email}=req.body;
     const user=await Auth.findOne({email});
-    console.log('User',user);
     const task=await Task.findById(id);
     const sharedBy=await Auth.findById(userId);
     try {
