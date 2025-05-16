@@ -4,13 +4,9 @@ const Task = require('../models/taskModel');
 const createTask = async (req, res) => {
     const userId=req.userId; //From Middleware
     const {description}=req.body;
-    if(!description) //Check if no description given
-    {
-        return res.status(400).send("Description is required!");
-    }
     try{
         const task = await Task.create({ description,userId });
-        return res.status(200).send({message:"Task Created Successfully", task});
+        return res.status(201).send({message:"Task Created Successfully", task});
     }
     catch(error)
     {
@@ -42,7 +38,7 @@ const getOneTask=async(req,res)=>{
         const task=await Task.findById(taskId);
         if(!task)
         {
-            return res.status(400).send("No task found");
+            return res.status(404).send("No task found");
         }
         if(task.userId.toString()!=userId) //if the task doesnt belong to the current user
         {
@@ -63,14 +59,10 @@ const updateTask=async(req,res)=>{
     const userId=req.userId;
     const {id}=req.params;
     const {description}=req.body;
-    if(!description)
-    {
-        return res.status(400).send("Description cant be empty");
-    }
     const task=await Task.findById(id);
     if(!task)
     {
-        return res.status(400).send("No task found");
+        return res.status(404).send("No task found");
     }
     if(task.userId.toString()!=userId)
     {
@@ -91,7 +83,7 @@ const deleteTask=async(req,res)=>{
         const task=await Task.findById(taskId);
         if(!task)
         {
-            return res.status(400).send("No task found");
+            return res.status(404).send("No task found");
         }
         if(task.userId.toString()!=userId)
         {
