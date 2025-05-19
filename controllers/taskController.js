@@ -1,7 +1,7 @@
 const Task = require('../models/taskModel');
 const Auth=require('../models/authModel');
 const {sendNotificationEmail}=require('../services/emailService');
-const {sendTaskNotification}=require('../services/socketService');
+const {sendTaskNotification,sendUpdateEvent,sendDeleteEvent}=require('../services/socketService');
 
 
 //Create a task for the user.
@@ -79,7 +79,9 @@ const shareTask=async(req,res)=>{
             await sendNotificationEmail(email,'Task Share Notification',`<p>${sharedBy.email} shared a task with you</p><p>Task Description: ${task.description}</p>`)
             
             const message= `A task was shared by ${sharedBy.username} with you: "${task.description}"`;
-            sendTaskNotification(io,connectedUsers,user._id,message)
+            const eventName='shareNotification';
+            
+            sendTaskNotification(io,connectedUsers,user._id,message,eventName)
             
             return res.status(200).json({ message: 'Email Sent Successfullly!!' });
         
@@ -115,6 +117,8 @@ const getOneTask=async(req,res)=>{
 
 //Update the specified task 
 const updateTask=async(req,res)=>{
+    const io = req.app.get('io');
+    const connectedUsers = req.app.get('connectedUsers');
     const userId=req.userId;
     const {id}=req.params;
     const {description,isCompleted}=req.body;
@@ -130,6 +134,16 @@ const updateTask=async(req,res)=>{
     task.description=description;
     task.isCompleted=isCompleted;
     await task.save();
+
+    const recipients = new Set([
+        task.userId,         
+        ...task.collaborators,
+    ]);
+
+      recipients.forEach(uid => {
+        sendUpdateEvent(io,uid,connectedUsers,task);
+      });
+
     return res.status(200).send({message:"Task Updated Successfully",task:task});
 
 
@@ -139,6 +153,8 @@ const updateTask=async(req,res)=>{
 const deleteTask=async(req,res)=>{
     const userId=req.userId;
     const taskId=req.params.id;
+    const io = req.app.get('io');
+    const connectedUsers = req.app.get('connectedUsers');
     try{
         const task=await Task.findById(taskId);
         if(!task)
@@ -150,6 +166,15 @@ const deleteTask=async(req,res)=>{
             return res.status(400).send("No allowed"); //if the task doesnt belong to the current user
         }
         await Task.deleteOne({_id:taskId});
+
+        const recipients = new Set([
+            ...task.collaborators
+          ]);
+          
+          recipients.forEach(uid => {
+            sendDeleteEvent(io,connectedUsers,uid,task._id);
+          });
+
         return res.status(200).send("Task Deleted Successfully");
 
     }

@@ -29,7 +29,9 @@ module.exports = function startTaskReminderCron(io, connectedUsers) {
       );
 
       const message= `(1 hour remaining) Your deadline for the following task is about to meet: "${task.description}"`;
-      sendTaskNotification(io,connectedUsers,user._id,message);
+      const eventName='deadlineNotification';
+      
+      sendTaskNotification(io,connectedUsers,user._id,message,eventName);
 
       task.reminderSent = true;
       await task.save();
@@ -38,7 +40,7 @@ module.exports = function startTaskReminderCron(io, connectedUsers) {
         for (const collaboratorId of task.collaborators) {
           const collaborator = await Auth.findById(collaboratorId);
           if (collaborator) {
-            sendTaskNotification(io, connectedUsers, collaborator._id, message);
+            sendTaskNotification(io, connectedUsers, collaborator._id, message,eventName);
           }
         }
       }
