@@ -1,24 +1,13 @@
-#  Todo App – CRUD API (Feature Branch)
+#  Todo App – Share Task Feature
 
-This feature branch introduces the complete backend structure for a **Todo App** using **MongoDB**, **Mongoose**, and **Node.js**. It includes models for **Users** and **Tasks**, along with full CRUD operations and schema-level validation using Mongoose hooks.
+This feature branch add the task sharing functionality and sending task sahring and deadline notifications using WebSockets.It also includes sending notifications through email
 
 ---
 
 ##  Features Implemented
 
-- ✅ MongoDB connection using **Mongoose**
-- ✅ Created **User** model with schema validation
-- ✅ Created **Task** model with validation and pre-save hooks
-- ✅ Implemented full **CRUD operations** for tasks
-- ✅ Middleware and modular structure for scalability
+-  share Task functionality
+-  Task share and deadline email notification
+-  Real-time notification using WebSockets (Socket.IO)
 
 ---
-
-## 🛠 Tech Stack
-
-- **Node.js**
-- **Express.js**
-- **MongoDB** 
-- **Mongoose**
-- **dotenv** (for environment configuration)
-

@@ -1,11 +1,16 @@
 const Task = require('../models/taskModel');
+const Auth=require('../models/authModel');
+const {sendNotificationEmail}=require('../services/emailService');
+const {sendTaskNotification,sendUpdateEvent,sendDeleteEvent}=require('../services/socketService');
+
 
 //Create a task for the user.
 const createTask = async (req, res) => {
     const userId=req.userId; //From Middleware
-    const {description}=req.body;
+    const {description,deadline}=req.body;
     try{
-        const task = await Task.create({ description,userId });
+        const taskDeadline = new Date(deadline);
+        const task = await Task.create({ description,userId,deadline:taskDeadline });
         return res.status(201).send({message:"Task Created Successfully", task});
     }
     catch(error)
@@ -18,16 +23,72 @@ const createTask = async (req, res) => {
 //Get all tasks for current user
 const getAllTasks=async(req,res)=>{
     const userId=req.userId;
-    const tasks= await Task.find({userId});
+    //const tasks= await Task.find({userId});
+    const tasks=await Task.find({$or: [
+        { userId: userId },
+        { collaborators: userId}
+      ]
+    })
+    
     if(tasks)
     {
-        return res.status(200).send(tasks);
+        return res.status(200).send({tasks:tasks});
     }
     else
     {
         return res.status(200).send("No tasks found for this user");
     }
+}
 
+//share task(add collaborator,send mail, send notification)
+const shareTask=async(req,res)=>{
+
+    const io = req.app.get('io');
+    const connectedUsers = req.app.get('connectedUsers');
+    const userId=req.userId;
+    const {id}=req.params;
+    const {email}=req.body;
+    const user=await Auth.findOne({email});
+    const task=await Task.findById(id);
+    const sharedBy=await Auth.findById(userId);
+    try {
+
+        if(!task)
+            {
+                 return res.status(404).json({ message: 'Task not found' });
+            }
+            if(task.userId.toString()!=userId) //if the task doesnt belong to the current user
+            {
+                return res.status(400).json({ message: 'No allowed' });
+            }
+            if(!user)
+            {
+                return res.status(400).json({ message: 'User not found' });
+            }
+            if(user._id==userId)
+            {
+                return res.status(400).json({ message: 'You cannot share with yourself' });   
+            }
+            const alreadyCollaborator = task.collaborators.includes(user._id);
+            if (alreadyCollaborator) {
+                return res.status(400).json({ message: 'This user is already a collaborator' });
+            }
+            task.collaborators.push(user._id);
+            await task.save();
+
+            await sendNotificationEmail(email,'Task Share Notification',`<p>${sharedBy.email} shared a task with you</p><p>Task Description: ${task.description}</p>`)
+            
+            const message= `A task was shared by ${sharedBy.username} with you: "${task.description}"`;
+            const eventName='shareNotification';
+            
+            sendTaskNotification(io,connectedUsers,user._id,message,eventName)
+            
+            return res.status(200).json({ message: 'Email Sent Successfullly!!' });
+        
+    } catch (error) {
+        return res.status(400).json({ message: error.message });
+    }
+    
 }
 
 //Get one specified task
@@ -56,21 +117,34 @@ const getOneTask=async(req,res)=>{
 
 //Update the specified task 
 const updateTask=async(req,res)=>{
+    const io = req.app.get('io');
+    const connectedUsers = req.app.get('connectedUsers');
     const userId=req.userId;
     const {id}=req.params;
-    const {description}=req.body;
+    const {description,isCompleted}=req.body;
     const task=await Task.findById(id);
     if(!task)
     {
         return res.status(404).send("No task found");
     }
-    if(task.userId.toString()!=userId)
+    if(task.userId.toString()!=userId && !task.collaborators.includes(userId))
     {
         return res.status(400).send("No allowed");//if the task doesnt belong to the current user
     }
     task.description=description;
+    task.isCompleted=isCompleted;
     await task.save();
-    return res.status(200).send("Task Updated Successfully");
+
+    const recipients = new Set([
+        task.userId,         
+        ...task.collaborators,
+    ]);
+
+      recipients.forEach(uid => {
+        sendUpdateEvent(io,uid,connectedUsers,task);
+      });
+
+    return res.status(200).send({message:"Task Updated Successfully",task:task});
 
 
 }
@@ -79,6 +153,8 @@ const updateTask=async(req,res)=>{
 const deleteTask=async(req,res)=>{
     const userId=req.userId;
     const taskId=req.params.id;
+    const io = req.app.get('io');
+    const connectedUsers = req.app.get('connectedUsers');
     try{
         const task=await Task.findById(taskId);
         if(!task)
@@ -90,6 +166,15 @@ const deleteTask=async(req,res)=>{
             return res.status(400).send("No allowed"); //if the task doesnt belong to the current user
         }
         await Task.deleteOne({_id:taskId});
+
+        const recipients = new Set([
+            ...task.collaborators
+          ]);
+          
+          recipients.forEach(uid => {
+            sendDeleteEvent(io,connectedUsers,uid,task._id);
+          });
+
         return res.status(200).send("Task Deleted Successfully");
 
     }
@@ -97,8 +182,6 @@ const deleteTask=async(req,res)=>{
         return res.status(500).send(error.message);
 
     }
-
-
 }
 
-module.exports = { createTask,updateTask,getAllTasks,getOneTask ,deleteTask};
+module.exports = { createTask,updateTask,getAllTasks,getOneTask ,deleteTask,shareTask};

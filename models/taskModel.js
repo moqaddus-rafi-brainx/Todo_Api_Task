@@ -7,13 +7,26 @@ const taskSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', //References the User model
+    ref: 'Auth', //References the Auth model
     required: true,
+  },
+  deadline:{
+    type:Date,
+
   },
   isCompleted:{
     type:Boolean,
     default:false,
-  }
+  },
+  collaborators:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Auth',
+  }],
+  reminderSent: { 
+    type: Boolean, 
+    default: false 
+  }, 
+
 });
 
 //ISCOMPLETED VALIDATION
